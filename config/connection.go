@@ -5,8 +5,13 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"runtime"
 	"sync"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 )
 
 var sharedDB *sql.DB
@@ -29,6 +34,13 @@ func Connect() *sql.DB {
 
 	once.Do(func() {
 
+		_, currentFile, _, _ := runtime.Caller(0)
+		appDir := filepath.Dir(currentFile)
+
+		envPath := filepath.Join(appDir, "../.env")
+		if err := godotenv.Load(envPath); err != nil {
+			log.Fatalf("Error loading .env file from %s: %v", envPath, err)
+		}
 		fmt.Println("=================ONCE.DO")
 		MYSQL_USERNAME := os.Getenv("MYSQL_USERNAME")
 		MYSQL_PASSWORD := os.Getenv("MYSQL_PASSWORD")
